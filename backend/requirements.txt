@@ -1,0 +1,7 @@
+flask==2.3.3
+flask-cors==4.0.1
+werkzeug==3.0.3
+pandas==2.2.2
+scapy==2.5.0
+tqdm==4.66.5
+numpy==1.26.4
