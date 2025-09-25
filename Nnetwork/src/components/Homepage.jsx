@@ -87,7 +87,7 @@ function UploadSection({ file, setFile, loading, error, setError, uploadProgress
         <button
           onClick={toggleTheme}
           className="bg-transparent text-white p-1 rounded-lg hover:bg-blue-700"
-          style={{ fontSize: '1.2em' }}
+          style={{ fontSize: '1.0em' }}
         >
           {theme === 'dark' ? '🌙' : '☀️'}
         </button>
@@ -572,17 +572,17 @@ function Homepage() {
           </div>
           <ul className="space-y-2">
             <li>
-              <Link to="/" className="block p-2 hover:bg-blue-600 rounded">Dashboard</Link>
+              <Link to="/" className="block p-2 hover:bg-blue-600 rounded">Home</Link>
             </li>
             <li>
               <Link to="/analysis" className="block p-2 hover:bg-blue-600 rounded">Analysis</Link>
             </li>
-            <li>
+            {/* <li>
               <Link to="/reports" className="block p-2 hover:bg-blue-600 rounded">Reports</Link>
-            </li>
-            <li>
+            </li> */}
+            {/* <li>
               <Link to="/settings" className="block p-2 hover:bg-blue-600 rounded">Settings</Link>
-            </li>
+            </li> */}
           </ul>
         </nav>
 
