@@ -34,3 +34,23 @@ Welcome to the **Network Traffic Analyzer**, a web-based application designed to
 git clone https://github.com/your-username/Network_analyzer.git
 cd Network_analyzer
 
+Backend Setup
+
+Navigate to the backend directory:
+cd backend
+Install Python dependencies:
+pip install -r requirements.txt
+Start the Flask server:
+python app.py
+Ensure the server runs on http://localhost:5000 (default).
+Frontend Setup
+Navigate to the frontend directory:
+cd Nnetwork
+Install Node.js dependencies:
+npm install
+Required packages: react, react-router-dom, chart.js, file-saver.
+Create a .env file in the Nnetwork directory with the following:
+textVITE_API_URL=http://localhost:5000
+Start the development server:
+npm run dev
+Open http://localhost:5173 in your browser to view the app.
