@@ -34,34 +34,3 @@ Welcome to the **Network Traffic Analyzer**, a web-based application designed to
 git clone https://github.com/your-username/Network_analyzer.git
 cd Network_analyzer
 
-## Project Structure
-Network_analyzer/
-│
-├── Nnetwork/                    # Frontend (React with Vite)
-│   ├── node_modules/           # Dependency directory
-│   ├── public/                 # Static files
-│   │   ├── index.html
-│   │   └── favicon.ico
-│   ├── src/                    # Source code
-│   │   ├── components/         # Reusable components
-│   │   │   ├── UploadSection.jsx
-│   │   │   ├── AnalysisTable.jsx
-│   │   │   ├── VisualizationSection.jsx
-│   │   │   ├── RecentlyUploaded.jsx
-│   │   │   ├── AboutSection.jsx
-│   │   │   └── Footer.jsx
-│   │   ├── App.jsx             # Main app component
-│   │   ├── index.js            # Entry point
-│   │   └── .env                # Environment variables
-│   ├── package.json            # Frontend dependencies
-│   ├── vite.config.js          # Vite configuration
-│   └── README.md               # Frontend docs
-│
-├── backend/                     # Backend (Python/Flask)
-│   ├── app.py                  # Flask server
-│   ├── requirements.txt        # Python dependencies
-│   └── README.md               # Backend docs
-│
-├── .gitignore                   # Git ignore file
-└── README.md                    # Root-level project documentation
-
