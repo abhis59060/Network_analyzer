@@ -30,9 +30,8 @@ Welcome to the **Network Traffic Analyzer**, a web-based application designed to
 ## Installation
 
 ### Clone the Repository
-```bash
-git clone https://github.com/your-username/Network_analyzer.git
-cd Network_analyzer
+--git clone https://github.com/your-username/Network_analyzer.git
+--cd Network_analyzer
 
 
 
