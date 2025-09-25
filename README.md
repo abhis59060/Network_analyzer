@@ -37,18 +37,18 @@ cd Network_analyzer
 
 
 ## Usage
-1. **Upload a PCAP File**:
+--1. **Upload a PCAP File**:
    - Click "Browse Files" or drag/drop a `.pcap`/`.pcapng` file (max 100MB).
    - Wait for the upload (simulated progress bar).
-2. **Analyze Traffic**:
+--2. **Analyze Traffic**:
    - Click "Analyze PCAP" to process; see results and visualizations.
-3. **Explore Results**:
+--3. **Explore Results**:
    - View packet details (IP, protocol, ports) in the table.
    - Search data using the search bar.
-4. **Visualize Data**:
+--4. **Visualize Data**:
    - Switch between bar, line, or pie charts; customize colors.
    - Download graph images for reports.
-5. **Export Data**:
+--5. **Export Data**:
    - Export results as CSV or JSON files.
-6. **Manage Data**:
+--6. **Manage Data**:
    - Delete data via "Delete Analysis Data" with confirmation.
