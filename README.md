@@ -34,40 +34,21 @@ Welcome to the **Network Traffic Analyzer**, a web-based application designed to
 git clone https://github.com/your-username/Network_analyzer.git
 cd Network_analyzer
 
-Backend Setup
 
-Navigate to the backend directory:
-cd backend
-Install Python dependencies:
-pip install -r requirements.txt
-Start the Flask server:
-python app.py
-Ensure the server runs on http://localhost:5000 (default).
-Frontend Setup
-Navigate to the frontend directory:
-cd Nnetwork
-Install Node.js dependencies:
-npm install
-Required packages: react, react-router-dom, chart.js, file-saver.
-Create a .env file in the Nnetwork directory with the following:
-textVITE_API_URL=http://localhost:5000
-Start the development server:
-npm run dev
-Open http://localhost:5173 in your browser to view the app.
 
 ## Usage
-- **Upload a PCAP File**:
-  - Click "Browse Files" or drag and drop a `.pcap` or `.pcapng` file (max 100MB).
-  - Wait for the upload to complete (simulated progress bar).
-- **Analyze Traffic**:
-  - Click "Analyze PCAP" to process the file. Results and visualizations will appear.
-- **Explore Results**:
-  - Use the table to view detailed packet information (IP, protocol, ports, etc.).
-  - Search for specific data using the search bar.
-- **Visualize Data**:
-  - Switch between bar, line, or pie charts and customize colors.
-  - Download graph images for reporting.
-- **Export Data**:
-  - Export analysis results as CSV or JSON files.
-- **Manage Data**:
-  - Delete analysis data via the "Delete Analysis Data" button with confirmation.
+1. **Upload a PCAP File**:
+   - Click "Browse Files" or drag/drop a `.pcap`/`.pcapng` file (max 100MB).
+   - Wait for the upload (simulated progress bar).
+2. **Analyze Traffic**:
+   - Click "Analyze PCAP" to process; see results and visualizations.
+3. **Explore Results**:
+   - View packet details (IP, protocol, ports) in the table.
+   - Search data using the search bar.
+4. **Visualize Data**:
+   - Switch between bar, line, or pie charts; customize colors.
+   - Download graph images for reports.
+5. **Export Data**:
+   - Export results as CSV or JSON files.
+6. **Manage Data**:
+   - Delete data via "Delete Analysis Data" with confirmation.
