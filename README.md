@@ -54,3 +54,39 @@ textVITE_API_URL=http://localhost:5000
 Start the development server:
 npm run dev
 Open http://localhost:5173 in your browser to view the app.
+
+## Usage
+
+Usage
+
+Upload a PCAP File:
+
+Click "Browse Files" or drag and drop a .pcap or .pcapng file (max 100MB).
+Wait for the upload to complete (simulated progress bar).
+
+
+Analyze Traffic:
+
+Click "Analyze PCAP" to process the file. Results and visualizations will appear.
+
+
+Explore Results:
+
+Use the table to view detailed packet information (IP, protocol, ports, etc.).
+Search for specific data using the search bar.
+
+
+Visualize Data:
+
+Switch between bar, line, or pie charts and customize colors.
+Download graph images for reporting.
+
+
+Export Data:
+
+Export analysis results as CSV or JSON files.
+
+
+Manage Data:
+
+Delete analysis data via the "Delete Analysis Data" button with confirmation.
