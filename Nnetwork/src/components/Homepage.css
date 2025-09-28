@@ -145,12 +145,13 @@ section:target {
 }
 
 .about-image {
-  animation: slide 4s ease-in-out infinite;
+  animation: slide 6s ease-in-out infinite;
+  position: relative;
 }
 @keyframes slide {
-  0% { transform: translateX(-10px); }
-  50% { transform: translateX(10px); }
-  100% { transform: translateX(-10px); }
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
 }
 
 /* Custom styles for Markdown content */

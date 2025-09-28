@@ -146,7 +146,7 @@ function UploadSection({ file, setFile, loading, error, setError, uploadProgress
                 <p>Uploading: {file.name} ({uploadProgress}%)</p>
                 <div className="w-full bg-gray-600 rounded mt-2 relative overflow-hidden progress-bar">
                   <div
-                    className="bg-blue-400 h-2 rounded transition-width duration-500 ease-in-out"
+                    className="bg-blue-400 h-2 rounded transition-width duration-300 ease-in-out"
                     style={{ width: `${uploadProgress}%` }}
                   >
                     <span className="absolute inset-0 flex items-center justify-center text-xs text-white">
