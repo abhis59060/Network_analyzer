@@ -1,9 +1,12 @@
+
 import { useState, useEffect, useRef, useContext, createContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Bar, Line, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
-import { Component } from 'react'; // For ErrorBoundary
-import { saveAs } from 'file-saver'; // For file and image download
+import { Component } from 'react';
+import { saveAs } from 'file-saver';
+import ReactMarkdown from 'react-markdown';
+import './Homepage.css';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend);
@@ -11,12 +14,17 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointEleme
 // Theme Context for Dark/Light Mode
 const ThemeContext = createContext();
 
+// ThemeProvider Component
 function ThemeProvider({ children }) {
   const [theme, setTheme] = useState('dark');
 
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'));
   };
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
@@ -27,10 +35,15 @@ function ThemeProvider({ children }) {
 
 // Error Boundary Component
 class ErrorBoundary extends Component {
-  state = { hasError: false, error: null };
+  state = { hasError: false, error: null, errorInfo: null };
 
   static getDerivedStateFromError(error) {
     return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('ErrorBoundary caught:', error, errorInfo);
+    this.setState({ errorInfo });
   }
 
   render() {
@@ -38,10 +51,11 @@ class ErrorBoundary extends Component {
       return (
         <div className="min-h-screen bg-gray-900 text-white p-6 text-center">
           <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
-          <p className="text-gray-400">Error: {this.state.error.message}</p>
+          <p className="text-gray-400">Error: {this.state.error?.message || 'Unknown error'}</p>
+          <pre className="text-gray-400 text-sm">{this.state.errorInfo?.componentStack}</pre>
           <button
-            onClick={() => this.setState({ hasError: false, error: null })}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={() => this.setState({ hasError: false, error: null, errorInfo: null })}
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 hover:scale-105"
           >
             Try Again
           </button>
@@ -54,14 +68,15 @@ class ErrorBoundary extends Component {
 
 // UploadSection Component
 function UploadSection({ file, setFile, loading, error, setError, uploadProgress, handleAnalyzePcap, fileInputRef }) {
-  const { theme, toggleTheme } = useContext(ThemeContext);
   const [inputBorder, setInputBorder] = useState('border-blue-400');
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     const maxSize = 100 * 1024 * 1024; // 100MB limit
     if (selectedFile) {
-      if (!['pcap', 'pcapng'].includes(selectedFile.name.split('.').pop().toLowerCase())) {
+      const fileExtension = selectedFile.name.split('.').pop().toLowerCase();
+      if (!['pcap', 'pcapng'].includes(fileExtension)) {
         setError('Invalid file format. Please select a .pcap or .pcapng file.');
         setInputBorder('border-red-500');
         setFile(null);
@@ -80,19 +95,30 @@ function UploadSection({ file, setFile, loading, error, setError, uploadProgress
     }
   };
 
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setIsDragOver(false);
+    if (loading) return;
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      const mockEvent = { target: { files: files } };
+      handleFileChange(mockEvent);
+    }
+  };
+
+  const dropZoneClasses = `border-2 border-dashed ${inputBorder} p-10 text-center transition duration-300 ease-in-out ${isDragOver ? 'bg-gray-700 drop-zone drag-over border-blue-500' : ''}`;
+
   return (
     <section id="home" className="bg-gray-800 p-8 rounded-lg shadow-lg">
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6">
         <h2 className="text-3xl font-bold">Upload PCAP File</h2>
-        <button
-          onClick={toggleTheme}
-          className="bg-transparent text-white p-1 rounded-lg hover:bg-blue-700"
-          style={{ fontSize: '1.0em' }}
-        >
-          {theme === 'dark' ? '🌙' : '☀️'}
-        </button>
       </div>
-      <div className={`border-2 border-dashed ${inputBorder} p-10 text-center`}>
+      <div
+        className={dropZoneClasses}
+        onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+        onDragLeave={() => setIsDragOver(false)}
+        onDrop={handleDrop}
+      >
         <input
           type="file"
           accept=".pcap,.pcapng"
@@ -108,8 +134,7 @@ function UploadSection({ file, setFile, loading, error, setError, uploadProgress
             }
           }}
           disabled={loading}
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-500 mb-4 custom-browse-button"
-          style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
+          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-500 mb-4 custom-browse-button transition duration-300 hover:scale-105"
         >
           Browse Files
         </button>
@@ -119,7 +144,7 @@ function UploadSection({ file, setFile, loading, error, setError, uploadProgress
             {uploadProgress > 0 && uploadProgress < 100 && (
               <div>
                 <p>Uploading: {file.name} ({uploadProgress}%)</p>
-                <div className="w-full bg-gray-600 rounded mt-2 relative overflow-hidden transition-all duration-500 ease-in-out">
+                <div className="w-full bg-gray-600 rounded mt-2 relative overflow-hidden progress-bar">
                   <div
                     className="bg-blue-400 h-2 rounded transition-width duration-500 ease-in-out"
                     style={{ width: `${uploadProgress}%` }}
@@ -131,13 +156,24 @@ function UploadSection({ file, setFile, loading, error, setError, uploadProgress
                 </div>
               </div>
             )}
-            {uploadProgress === 100 && !loading && (
+            {(uploadProgress === 100 && !loading) && (
               <button
                 onClick={handleAnalyzePcap}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 mt-4 custom-analyze-button"
-                style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 mt-4 custom-analyze-button transition duration-300 hover:scale-105"
               >
                 Analyze PCAP
+              </button>
+            )}
+            {(loading && uploadProgress === 100) && (
+              <button
+                disabled
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg mt-4 custom-analyze-button animate-pulse flex items-center justify-center mx-auto space-x-2"
+              >
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Analyzing...</span>
               </button>
             )}
           </div>
@@ -152,13 +188,18 @@ function UploadSection({ file, setFile, loading, error, setError, uploadProgress
 function AnalysisTable({ analysisResults, loading, currentPage, setCurrentPage, resultsPerPage, searchTerm, setSearchTerm }) {
   const filteredResults = analysisResults.filter((row) =>
     Object.values(row).some((value) =>
-      String(value).toLowerCase().includes(searchTerm.toLowerCase())
+      String(value || '').toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
   const indexOfLastResult = currentPage * resultsPerPage;
   const indexOfFirstResult = indexOfLastResult - resultsPerPage;
   const currentResults = filteredResults.slice(indexOfFirstResult, indexOfLastResult);
-  const totalPages = Math.ceil(filteredResults.length / resultsPerPage);
+  const totalPages = Math.ceil(filteredResults.length / resultsPerPage) || 1;
+
+  console.log('Analysis Results:', analysisResults);
+  console.log('Filtered Results:', filteredResults);
+  console.log('Current Results:', currentResults);
+  console.log('Current Page:', currentPage, 'Total Pages:', totalPages);
 
   const nextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
@@ -172,64 +213,67 @@ function AnalysisTable({ analysisResults, loading, currentPage, setCurrentPage, 
           placeholder="Search by IP, Protocol, Port..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="bg-gray-700 text-white p-2 rounded w-1/3"
+          className="bg-gray-700 text-white p-2 rounded w-1/3 transition duration-300 focus:ring-2 focus:ring-blue-500 search-input"
         />
       </div>
-      {loading && <p className="text-center">Loading...</p>}
-      {analysisResults.length > 0 ? (
-        <div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-gray-800 border border-gray-600">
-              <thead>
-                <tr className="bg-gray-700">
-                  <th className="border-b border-gray-600 px-4 py-2 text-left text-white">No.</th>
-                  <th className="border-b border-gray-600 px-4 py-2 text-left text-white">Source IP</th>
-                  <th className="border-b border-gray-600 px-4 py-2 text-left text-white">Destination IP</th>
-                  <th className="border-b border-gray-600 px-4 py-2 text-left text-white">Protocol</th>
-                  <th className="border-b border-gray-600 px-4 py-2 text-left text-white">Size (Bytes)</th>
-                  <th className="border-b border-gray-600 px-4 py-2 text-left text-white">Source Port</th>
-                  <th className="border-b border-gray-600 px-4 py-2 text-left text-white">Destination Port</th>
-                  <th className="border-b border-gray-600 px-4 py-2 text-left text-white">TCP Flags</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentResults.map((row, index) => (
-                  <tr key={index} className="bg-gray-900 hover:bg-gray-700">
-                    <td className="border-b border-gray-600 px-4 py-2 text-white">{indexOfFirstResult + index + 1}</td>
-                    <td className="border-b border-gray-600 px-4 py-2 text-white">{row.src_ip || '-'}</td>
-                    <td className="border-b border-gray-600 px-4 py-2 text-white">{row.dst_ip || '-'}</td>
-                    <td className="border-b border-gray-600 px-4 py-2 text-white">{row.protocol || '-'}</td>
-                    <td className="border-b border-gray-600 px-4 py-2 text-white">{row.size !== null ? row.size : '-'}</td>
-                    <td className="border-b border-gray-600 px-4 py-2 text-white">{row.src_port !== null ? row.src_port : '-'}</td>
-                    <td className="border-b border-gray-600 px-4 py-2 text-white">{row.dst_port !== null ? row.dst_port : '-'}</td>
-                    <td className="border-b border-gray-600 px-4 py-2 text-white">{row.tcp_flags || '-'}</td>
+      {loading ? (
+        <p className="text-center text-gray-400">Loading...</p>
+      ) : analysisResults.length > 0 ? (
+        filteredResults.length > 0 ? (
+          <div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-gray-800 border border-gray-600">
+                <thead>
+                  <tr className="bg-gray-700">
+                    <th className="border-b border-gray-600 px-4 py-2 text-left text-white">No.</th>
+                    <th className="border-b border-gray-600 px-4 py-2 text-left text-white">Source IP</th>
+                    <th className="border-b border-gray-600 px-4 py-2 text-left text-white">Destination IP</th>
+                    <th className="border-b border-gray-600 px-4 py-2 text-left text-white">Protocol</th>
+                    <th className="border-b border-gray-600 px-4 py-2 text-left text-white">Size (Bytes)</th>
+                    <th className="border-b border-gray-600 px-4 py-2 text-left text-white">Source Port</th>
+                    <th className="border-b border-gray-600 px-4 py-2 text-left text-white">Destination Port</th>
+                    <th className="border-b border-gray-600 px-4 py-2 text-left text-white">TCP Flags</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {currentResults.map((row, index) => (
+                    <tr key={index} className="bg-gray-900 animate-row">
+                      <td className="border-b border-gray-600 px-4 py-2 text-white">{indexOfFirstResult + index + 1}</td>
+                      <td className="border-b border-gray-600 px-4 py-2 text-white">{row.src_ip || '-'}</td>
+                      <td className="border-b border-gray-600 px-4 py-2 text-white">{row.dst_ip || '-'}</td>
+                      <td className="border-b border-gray-600 px-4 py-2 text-white">{row.protocol || '-'}</td>
+                      <td className="border-b border-gray-600 px-4 py-2 text-white">{row.size || '-'}</td>
+                      <td className="border-b border-gray-600 px-4 py-2 text-white">{row.src_port || '-'}</td>
+                      <td className="border-b border-gray-600 px-4 py-2 text-left text-white">{row.dst_port || '-'}</td>
+                      <td className="border-b border-gray-600 px-4 py-2 text-left text-white">{row.tcp_flags || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex justify-center mt-4 space-x-2">
+              <button
+                onClick={prevPage}
+                disabled={currentPage === 1}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-500 transition duration-300 hover:scale-105 pagination-button"
+              >
+                Previous
+              </button>
+              <span className="px-4 py-2">Page {currentPage} of {totalPages}</span>
+              <button
+                onClick={nextPage}
+                disabled={currentPage === totalPages}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-500 transition duration-300 hover:scale-105 pagination-button"
+              >
+                Next
+              </button>
+            </div>
           </div>
-          <div className="flex justify-center mt-4 space-x-2">
-            <button
-              onClick={prevPage}
-              disabled={currentPage === 1}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-500"
-              style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
-            >
-              Previous
-            </button>
-            <span className="px-4 py-2">Page {currentPage} of {totalPages}</span>
-            <button
-              onClick={nextPage}
-              disabled={currentPage === totalPages}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-500"
-              style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
-            >
-              Next
-            </button>
-          </div>
-        </div>
+        ) : (
+          <p className="text-center text-gray-400">No results match the search term.</p>
+        )
       ) : (
-        !loading && <p className="text-center text-gray-400">Upload a valid PCAP file to see results.</p>
+        <p className="text-center text-gray-400">Upload a valid PCAP file to see results.</p>
       )}
     </section>
   );
@@ -237,12 +281,7 @@ function AnalysisTable({ analysisResults, loading, currentPage, setCurrentPage, 
 
 // VisualizationSection Component
 function VisualizationSection({ visualizations, loading, graphType, setGraphType, graphOptions, setGraphOptions }) {
-  const downloadGraphImage = (chartRef, title) => {
-    const link = document.createElement('a');
-    link.download = `${title}.png`;
-    link.href = chartRef.toBase64Image();
-    link.click();
-  };
+  console.log('Visualizations:', visualizations); // Debug visualizations
 
   return (
     <section id="visualizations" className="mt-6 bg-gray-800 p-6 rounded-lg">
@@ -250,33 +289,32 @@ function VisualizationSection({ visualizations, loading, graphType, setGraphType
       {loading && <p className="text-center">Generating visualizations...</p>}
       {visualizations.length > 0 ? (
         <div>
-          {/* Customizable Options */}
           <div className="flex space-x-4 mb-4">
             <select
               value={graphType}
               onChange={(e) => setGraphType(e.target.value)}
-              className="bg-gray-700 text-white p-2 rounded"
+              className="bg-gray-700 text-white p-2 rounded transition duration-300 hover:ring-2 hover:ring-blue-500"
             >
               <option value="bar">Bar</option>
               <option value="line">Line</option>
               <option value="pie">Pie</option>
             </select>
-            {/* Basic customization, e.g., color picker for bars */}
             <input
               type="color"
               value={graphOptions.barColor}
               onChange={(e) => setGraphOptions({ ...graphOptions, barColor: e.target.value })}
-              className="p-1 rounded"
+              className="p-1 rounded cursor-pointer"
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {visualizations.map((viz) => (
-              <div key={viz.id} className="bg-gray-700 p-4 rounded-lg shadow relative" style={{ height: '400px' }}>
+              <div key={viz.id} className="bg-gray-700 p-4 rounded-lg shadow relative chart-container" style={{ height: '400px' }}>
                 <h3 className="text-lg font-semibold mb-2">{viz.title}</h3>
-                <div style={{ position: 'relative', height: '300px' }}>
-                  {graphType === 'bar' ? (
+                <div key={graphType} className="chart-switch" style={{ position: 'relative', height: '300px' }}>
+                  {!viz.chart || !viz.chart.data ? (
+                    <p className="text-center text-gray-400">No valid chart data available.</p>
+                  ) : graphType === 'bar' ? (
                     <Bar
-                      ref={(ref) => { if (ref) viz.chartRef = ref.chartInstance; }}
                       data={{
                         labels: viz.chart.data.labels || ['TCP', 'UDP', 'ICMP'],
                         datasets: [{
@@ -303,28 +341,36 @@ function VisualizationSection({ visualizations, loading, graphType, setGraphType
                     />
                   ) : graphType === 'line' ? (
                     <Line
-                      ref={(ref) => { if (ref) viz.chartRef = ref.chartInstance; }}
-                      data={viz.chart.data}
+                      data={{
+                        labels: viz.chart.data.labels || ['TCP', 'UDP', 'ICMP'],
+                        datasets: [{
+                          label: viz.chart.data.datasets?.[0]?.label || 'Protocol Distribution',
+                          data: viz.chart.data.datasets?.[0]?.data || [50, 30, 20],
+                          backgroundColor: graphOptions.barColor || '#10b981',
+                          borderColor: graphOptions.borderColor || '#047857',
+                          borderWidth: 1,
+                        }],
+                      }}
                       options={{
-                        ...viz.chart.options,
+                        responsive: true,
+                        maintainAspectRatio: false,
                         plugins: {
                           legend: { labels: { color: 'white' } },
-                          title: { color: 'white' },
+                          title: { display: true, text: viz.title || 'Packet Distribution', color: 'white', font: { size: 16 } },
                         },
                         scales: {
                           x: { ticks: { color: 'white' } },
-                          y: { ticks: { color: 'white' } },
+                          y: { ticks: { color: 'white', beginAtZero: true } },
                         },
                       }}
                     />
                   ) : graphType === 'pie' ? (
                     <Pie
-                      ref={(ref) => { if (ref) viz.chartRef = ref.chartInstance; }}
                       data={{
                         labels: viz.chart.data.labels || ['TCP', 'UDP', 'ICMP'],
                         datasets: [{
                           data: viz.chart.data.datasets?.[0]?.data || [50, 30, 20],
-                          backgroundColor: [graphOptions.barColor || '#10b981', '#ef4444', '#fbbf24'],
+                          backgroundColor: [graphOptions.barColor || '#10b981', '#ef4444', '#fbbf24', '#3b82f6', '#facc15'],
                         }],
                       }}
                       options={{
@@ -335,15 +381,10 @@ function VisualizationSection({ visualizations, loading, graphType, setGraphType
                         },
                       }}
                     />
-                  ) : null}
+                  ) : (
+                    <p className="text-center text-gray-400">Invalid graph type selected.</p>
+                  )}
                 </div>
-                <button
-                  onClick={() => downloadGraphImage(viz.chartRef, viz.title)}
-                  className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                  style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
-                >
-                  Download Image
-                </button>
               </div>
             ))}
           </div>
@@ -361,18 +402,12 @@ function RecentlyUploaded() {
     <div className="mt-6 bg-gray-800 p-4 rounded-lg">
       <h3 className="text-xl font-semibold mb-2">Recently Uploaded</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gray-700 p-2 rounded">
-          <p className="text-sm">catburk_traffic_dump.pcap</p>
-          <p className="text-xs text-gray-400">Last upload: 2025-09-24 22:00</p>
-        </div>
-        <div className="bg-gray-700 p-2 rounded">
-          <p className="text-sm">network_traffic_dump.cap</p>
-          <p className="text-xs text-gray-400">Last upload: 2025-09-24 21:58</p>
-        </div>
-        <div className="bg-gray-700 p-2 rounded">
-          <p className="text-sm">capture_traffic_dump.cap</p>
-          <p className="text-xs text-gray-400">Last upload: 2025-09-24 21:55</p>
-        </div>
+        {['catburk_traffic_dump.pcap', 'network_traffic_dump.cap', 'capture_traffic_dump.cap'].map((file, index) => (
+          <div key={file} className="bg-gray-700 p-2 rounded transform transition duration-300 hover:bg-gray-600 hover:scale-[1.03] recent-card" style={{ '--index': index }}>
+            <p className="text-sm">{file}</p>
+            <p className="text-xs text-gray-400">Last upload: 2025-09-24 21:{58 - index}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -380,12 +415,40 @@ function RecentlyUploaded() {
 
 // AboutSection Component
 function AboutSection() {
+  const aboutContent = `
+# About PCAP Data Analyzer
+
+The **PCAP Data Analyzer** is a powerful web-based tool designed to simplify network traffic analysis. Built with React and Chart.js, this application allows users to upload PCAP or PCAPNG files, analyze network packets, and visualize key insights through interactive charts. Whether you're a network administrator, cybersecurity professional, or researcher, this tool provides a user-friendly interface to explore bandwidth usage, protocol distribution, and packet details.
+
+## Key Features
+- **File Upload & Validation**: Seamlessly upload PCAP/PCAPNG files with a drag-and-drop interface, supporting files up to 100MB with real-time validation for format and size.
+- **Detailed Analysis**: View comprehensive packet data, including source/destination IPs, protocols, ports, and TCP flags, presented in a searchable, paginated table.
+- **Interactive Visualizations**: Generate dynamic bar, line, or pie charts to visualize protocol distribution and network trends, with customizable colors for enhanced clarity.
+- **Data Export**: Export analysis results as CSV or JSON files for further processing or reporting.
+- **Responsive Design**: Optimized for both desktop and mobile devices, with a sleek dark/light mode interface (toggle currently disabled for simplicity).
+- **Error Handling**: Robust error boundaries ensure a smooth experience, with clear feedback for invalid files or server issues.
+
+## Purpose
+The PCAP Data Analyzer aims to make network traffic analysis accessible and efficient. By providing detailed packet insights and intuitive visualizations, it empowers users to identify patterns, troubleshoot network issues, and enhance security monitoring without complex setup or external tools.
+
+## Technology Stack
+- **Frontend**: React, Chart.js, Tailwind CSS
+- **Backend Integration**: REST API for PCAP processing (assumes a backend server at \`localhost:5000/analyze\`)
+- **File Handling**: FileSaver.js for exporting results
+- **Styling**: Custom CSS with animations for a modern, engaging user experience
+
+## Future Enhancements
+We plan to expand the tool with real-time analysis, advanced filtering options, and support for additional file formats. Stay tuned for updates as we continue to improve the PCAP Data Analyzer!
+
+*Developed with ❤️ by the network analysis community for the network analysis community.*
+`;
+
   return (
     <section id="about" className="mt-6 bg-gray-800 p-6 rounded-lg">
       <h2 className="text-2xl font-bold mb-4">About</h2>
-      <p className="text-gray-400">
-        Analyze network traffic from PCAP files to gain insights into bandwidth usage and protocol distribution.
-      </p>
+      <div className="text-gray-400 prose prose-invert max-w-none">
+        <ReactMarkdown>{aboutContent}</ReactMarkdown>
+      </div>
     </section>
   );
 }
@@ -399,7 +462,8 @@ function Footer() {
   );
 }
 
-function Homepage() {
+// MainContent Component to use ThemeContext
+function MainContent() {
   const [file, setFile] = useState(null);
   const [analysisResults, setAnalysisResults] = useState([]);
   const [visualizations, setVisualizations] = useState([]);
@@ -413,11 +477,10 @@ function Homepage() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const fileInputRef = useRef(null);
   const location = useLocation();
-  const { theme, toggleTheme } = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext);
   const rootClass = theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-gray-900';
   const resultsPerPage = 10;
 
-  // API URL from environment variable
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
@@ -444,11 +507,9 @@ function Homepage() {
       timer = setInterval(() => {
         setUploadProgress((prev) => {
           const newProgress = prev + 10;
-          console.log('Progress updated to:', newProgress);
           if (newProgress >= 100) {
             clearInterval(timer);
             setLoading(false);
-            console.log('Upload completed at 100%');
             return 100;
           }
           return newProgress;
@@ -457,9 +518,12 @@ function Homepage() {
     }
     return () => {
       if (timer) clearInterval(timer);
-      console.log('Effect cleanup, progress:', uploadProgress);
     };
   }, [file]);
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset page when analysisResults change
+  }, [analysisResults]);
 
   const handleAnalyzePcap = async () => {
     if (!file) return;
@@ -467,6 +531,8 @@ function Homepage() {
     setError(null);
     setAnalysisResults([]);
     setVisualizations([]);
+    setSearchTerm(''); // Reset search term
+    setCurrentPage(1); // Reset pagination
     console.log('Starting PCAP analysis for:', file.name);
 
     const formData = new FormData();
@@ -481,24 +547,20 @@ function Homepage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        const errorMessage = errorData.error || `Analysis failed with status ${response.status}`;
-        console.error('Analysis failed:', errorMessage);
-        throw new Error(errorMessage);
+        throw new Error(errorData.error || `Analysis failed with status ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('Received response:', data);
+      console.log('API Response:', data);
+      console.log('Analysis Results:', data.analysis_results);
 
       if (!data.analysis_results || !Array.isArray(data.analysis_results)) {
         throw new Error('Invalid analysis results received from server');
       }
-      if (!data.visualizations || !Array.isArray(data.visualizations)) {
-        throw new Error('Invalid visualizations received from server');
-      }
 
       setAnalysisResults(data.analysis_results);
-      setVisualizations(data.visualizations);
-
+      setVisualizations(data.visualizations || []); // Ensure visualizations is an array
+      setCurrentPage(1);
       const analysisSection = document.getElementById('analysis');
       if (analysisSection) {
         analysisSection.scrollIntoView({ behavior: 'smooth' });
@@ -511,7 +573,6 @@ function Homepage() {
       console.error('Error during analysis:', errorMessage);
     } finally {
       setLoading(false);
-      console.log('Analysis complete, loading state:', false);
     }
   };
 
@@ -536,20 +597,6 @@ function Homepage() {
     saveAs(blob, 'analysis_results.json');
   };
 
-  const filteredResults = analysisResults.filter((row) =>
-    Object.values(row).some((value) =>
-      String(value).toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
-
-  const indexOfLastResult = currentPage * resultsPerPage;
-  const indexOfFirstResult = indexOfLastResult - resultsPerPage;
-  const currentResults = filteredResults.slice(indexOfFirstResult, indexOfLastResult);
-  const totalPages = Math.ceil(filteredResults.length / resultsPerPage);
-
-  const nextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
-
   const handleDeleteData = () => {
     setShowConfirmation(true);
   };
@@ -563,150 +610,124 @@ function Homepage() {
   };
 
   return (
-    <ErrorBoundary>
-      <div className={`${rootClass} min-h-screen flex`}>
-        {/* Sidebar Navigation */}
-        <nav className="w-64 bg-gray-800 p-4">
-          <div className="text-2xl font-bold mb-6 flex items-center">
-            <span className="text-blue-400 mr-2">⚙️</span> PCAP Data Analyzer
-          </div>
-          <ul className="space-y-2">
-            <li>
-              <Link to="/" className="block p-2 hover:bg-blue-600 rounded">Home</Link>
-            </li>
-            <li>
-              <Link to="/analysis" className="block p-2 hover:bg-blue-600 rounded">Analysis</Link>
-            </li>
-            {/* <li>
-              <Link to="/reports" className="block p-2 hover:bg-blue-600 rounded">Reports</Link>
-            </li> */}
-            {/* <li>
-              <Link to="/settings" className="block p-2 hover:bg-blue-600 rounded">Settings</Link>
-            </li> */}
-          </ul>
-        </nav>
-
-        {/* Main Content */}
-        <div className="flex-1 p-6">
-          {/* Upload Section */}
-          <UploadSection
-            file={file}
-            setFile={setFile}
-            loading={loading}
-            error={error}
-            setError={setError}
-            uploadProgress={uploadProgress}
-            handleAnalyzePcap={handleAnalyzePcap}
-            fileInputRef={fileInputRef}
-          />
-
-          {/* Recently Uploaded */}
-          <RecentlyUploaded />
-
-          {/* Analysis Results */}
-          <AnalysisTable
-            analysisResults={filteredResults}
-            loading={loading}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            resultsPerPage={resultsPerPage}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-          />
-          {analysisResults.length > 0 && (
-            <div className="ml-4 mt-2 flex space-x-2">
-              <button
-                onClick={exportToCSV}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
-              >
-                Export CSV
-              </button>
-              <button
-                onClick={exportToJSON}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
-              >
-                Export JSON
-              </button>
-            </div>
-          )}
-
-          {/* Visualizations */}
-          <VisualizationSection
-            visualizations={visualizations}
-            loading={loading}
-            graphType={graphType}
-            setGraphType={setGraphType}
-            graphOptions={graphOptions}
-            setGraphOptions={setGraphOptions}
-          />
-
-          {/* Data Privacy Delete Button */}
-          {analysisResults.length > 0 && (
-            <div className="ml-4 mt-4">
-              <button
-                onClick={handleDeleteData}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
-              >
-                Delete Analysis Data
-              </button>
-            </div>
-          )}
-
-          {/* About */}
-          <AboutSection />
-
-          {/* Footer */}
-          <Footer />
-
-          {/* Confirmation Dialog */}
-          {showConfirmation && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="bg-gray-800 p-6 rounded-lg">
-                <p className="mb-4">Are you sure you want to delete the analysis data?</p>
-                <button
-                  onClick={confirmDelete}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mr-2"
-                  style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
-                >
-                  Yes
-                </button>
-                <button
-                  onClick={() => setShowConfirmation(false)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                  style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
-                >
-                  No
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Retry Button for Errors */}
-          {error && (
-            <div className="mt-4 text-center">
-              <p className="text-red-400">{error}</p>
-              <button
-                onClick={handleRetry}
-                className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
-              >
-                Retry Analysis
-              </button>
-            </div>
-          )}
+    <div className={`${rootClass} min-h-screen flex`}>
+      <nav className="w-64 bg-gray-800 p-4">
+        <div className="text-2xl font-bold mb-6 flex items-center">
+          <span className="text-blue-400 mr-2">⚙️</span> PCAP Data Analyzer
         </div>
+        <ul className="space-y-2">
+          <li>
+            <Link to="/" className="block p-2 hover:bg-blue-600 rounded transition duration-300 hover:translate-x-1">Home</Link>
+          </li>
+          <li>
+            <Link to="/analysis" className="block p-2 hover:bg-blue-600 rounded transition duration-300 hover:translate-x-1">Analysis</Link>
+          </li>
+          <li>
+            <Link to="/about" className="block p-2 hover:bg-blue-600 rounded transition duration-300 hover:translate-x-1">About</Link>
+          </li>
+        </ul>
+      </nav>
+      <div className="flex-1 p-6">
+        <UploadSection
+          file={file}
+          setFile={setFile}
+          loading={loading}
+          error={error}
+          setError={setError}
+          uploadProgress={uploadProgress}
+          handleAnalyzePcap={handleAnalyzePcap}
+          fileInputRef={fileInputRef}
+        />
+        <RecentlyUploaded />
+        <AnalysisTable
+          analysisResults={analysisResults}
+          loading={loading}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          resultsPerPage={resultsPerPage}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
+        {analysisResults.length > 0 && (
+          <div className="ml-4 mt-2 flex space-x-2">
+            <button
+              onClick={exportToCSV}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 hover:scale-105 export-csv-button"
+            >
+              Export CSV
+            </button>
+            <button
+              onClick={exportToJSON}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 hover:scale-105 export-json-button"
+            >
+              Export JSON
+            </button>
+          </div>
+        )}
+        <VisualizationSection
+          visualizations={visualizations}
+          loading={loading}
+          graphType={graphType}
+          setGraphType={setGraphType}
+          graphOptions={graphOptions}
+          setGraphOptions={setGraphOptions}
+        />
+        {analysisResults.length > 0 && (
+          <div className="ml-4 mt-4">
+            <button
+              onClick={handleDeleteData}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 hover:scale-105 delete-analysis-button"
+            >
+              Delete Analysis Data
+            </button>
+          </div>
+        )}
+        <AboutSection />
+        <Footer />
+        {showConfirmation && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-gray-800 p-6 rounded-lg shadow-2xl modal">
+              <p className="mb-4">Are you sure you want to delete the analysis data?</p>
+              <button
+                onClick={confirmDelete}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 mr-2 transition duration-300 hover:scale-105 confirm-yes-button"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowConfirmation(false)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 hover:scale-105 confirm-no-button"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        )}
+        {error && (
+          <div className="mt-4 text-center">
+            <p className="text-red-400">{error}</p>
+            <button
+              onClick={handleRetry}
+              className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 hover:scale-105"
+            >
+              Retry Analysis
+            </button>
+          </div>
+        )}
       </div>
-    </ErrorBoundary>
+    </div>
   );
 }
 
-export default function App() {
+// Homepage Component
+function Homepage() {
   return (
     <ThemeProvider>
-      <Homepage />
+      <ErrorBoundary>
+        <MainContent />
+      </ErrorBoundary>
     </ThemeProvider>
   );
 }
+
+export default Homepage;
