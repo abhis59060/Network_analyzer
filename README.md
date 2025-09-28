@@ -36,49 +36,18 @@ Welcome to the **Network Traffic Analyzer**, a web-based application designed to
 
 
 ## Usage
-1. **Upload a PCAP File**:
+--1. **Upload a PCAP File**:
    - Click "Browse Files" or drag/drop a `.pcap`/`.pcapng` file (max 100MB).
    - Wait for the upload (simulated progress bar).
-2. **Analyze Traffic**:
+--2. **Analyze Traffic**:
    - Click "Analyze PCAP" to process; see results and visualizations.
-3. **Explore Results**:
+--3. **Explore Results**:
    - View packet details (IP, protocol, ports) in the table.
    - Search data using the search bar.
-4. **Visualize Data**:
+--4. **Visualize Data**:
    - Switch between bar, line, or pie charts; customize colors.
    - Download graph images for reports.
-5. **Export Data**:
+--5. **Export Data**:
    - Export results as CSV or JSON files.
-6. **Manage Data**:
+--6. **Manage Data**:
    - Delete data via "Delete Analysis Data" with confirmation.
-
-## Project Structure
-Network_analyzer/
-│
-├── Nnetwork/                    # Frontend (React with Vite)
-│   ├── node_modules/           # Dependency directory
-│   ├── public/                 # Static files
-│   │   ├── index.html
-│   │   └── favicon.ico
-│   ├── src/                    # Source code
-│   │   ├── components/         # Reusable components
-│   │   │   ├── UploadSection.jsx
-│   │   │   ├── AnalysisTable.jsx
-│   │   │   ├── VisualizationSection.jsx
-│   │   │   ├── RecentlyUploaded.jsx
-│   │   │   ├── AboutSection.jsx
-│   │   │   └── Footer.jsx
-│   │   ├── App.jsx             # Main app component
-│   │   ├── index.js            # Entry point
-│   │   └── .env                # Environment variables
-│   ├── package.json            # Frontend dependencies
-│   ├── vite.config.js          # Vite configuration
-│   └── README.md               # Frontend docs
-│
-├── backend/                     # Backend (Python/Flask)
-│   ├── app.py                  # Flask server
-│   ├── requirements.txt        # Python dependencies
-│   └── README.md               # Backend docs
-│
-├── .gitignore                   # Git ignore file
-└── README.md                    # Root-level project documentation
