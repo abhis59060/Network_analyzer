@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useContext, createContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Bar, Line, Pie } from 'react-chartjs-2';
@@ -6,6 +5,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, 
 import { Component } from 'react';
 import { saveAs } from 'file-saver';
 import ReactMarkdown from 'react-markdown';
+import networkAnalyzerImage from '../assets/images/network-analyzer.png';
 import './Homepage.css';
 
 // Register Chart.js components
@@ -415,7 +415,7 @@ function RecentlyUploaded() {
 
 // AboutSection Component
 function AboutSection() {
-  const aboutContent = `
+  const upperContent = `
 # About PCAP Data Analyzer
 
 The **PCAP Data Analyzer** is a powerful web-based tool designed to simplify network traffic analysis. Built with React and Chart.js, this application allows users to upload PCAP or PCAPNG files, analyze network packets, and visualize key insights through interactive charts. Whether you're a network administrator, cybersecurity professional, or researcher, this tool provides a user-friendly interface to explore bandwidth usage, protocol distribution, and packet details.
@@ -427,7 +427,9 @@ The **PCAP Data Analyzer** is a powerful web-based tool designed to simplify net
 - **Data Export**: Export analysis results as CSV or JSON files for further processing or reporting.
 - **Responsive Design**: Optimized for both desktop and mobile devices, with a sleek dark/light mode interface (toggle currently disabled for simplicity).
 - **Error Handling**: Robust error boundaries ensure a smooth experience, with clear feedback for invalid files or server issues.
+`;
 
+  const lowerContent = `
 ## Purpose
 The PCAP Data Analyzer aims to make network traffic analysis accessible and efficient. By providing detailed packet insights and intuitive visualizations, it empowers users to identify patterns, troubleshoot network issues, and enhance security monitoring without complex setup or external tools.
 
@@ -447,7 +449,15 @@ We plan to expand the tool with real-time analysis, advanced filtering options, 
     <section id="about" className="mt-6 bg-gray-800 p-6 rounded-lg">
       <h2 className="text-2xl font-bold mb-4">About</h2>
       <div className="text-gray-400 prose prose-invert max-w-none">
-        <ReactMarkdown>{aboutContent}</ReactMarkdown>
+        <ReactMarkdown>{upperContent}</ReactMarkdown>
+        <div className="flex justify-center my-4">
+          <img
+            src={networkAnalyzerImage}
+            alt="PCAP Data Analyzer"
+            className="w-1/2 md:w-1/3 rounded-lg shadow-lg about-image"
+          />
+        </div>
+        <ReactMarkdown>{lowerContent}</ReactMarkdown>
       </div>
     </section>
   );
