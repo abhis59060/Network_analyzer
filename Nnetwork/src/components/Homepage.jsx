@@ -488,8 +488,15 @@ function MainContent() {
   const fileInputRef = useRef(null);
   const location = useLocation();
   const { theme } = useContext(ThemeContext);
+  // NEW STATE: for sidebar collapse/expand
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); 
+
   const rootClass = theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-gray-900';
   const resultsPerPage = 10;
+  
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -621,22 +628,64 @@ function MainContent() {
 
   return (
     <div className={`${rootClass} min-h-screen flex`}>
-      <nav className="w-64 bg-gray-800 p-4">
-        <div className="text-2xl font-bold mb-6 flex items-center">
-          <span className="text-blue-400 mr-2">⚙️</span> PCAP Data Analyzer
+      {/* UPDATED NAVIGATION SIDEBAR */}
+      <nav 
+        className={`p-4 transition-all duration-300 ease-in-out ${
+          isSidebarOpen ? 'w-64' : 'w-20 items-center' // Control width based on state, center items when collapsed
+        } bg-gray-800 flex flex-col`}
+      >
+        <div className={`text-2xl font-bold mb-6 flex items-center ${isSidebarOpen ? 'justify-between' : 'justify-center'} w-full`}>
+          {/* Toggle Button (Hamburger/Gear Icon) */}
+          <button 
+            onClick={toggleSidebar} 
+            className="text-white hover:text-blue-400 p-1 rounded transition duration-300"
+            aria-label={isSidebarOpen ? "Collapse navigation" : "Expand navigation"}
+          >
+            {/* Using a hamburger icon for menu toggle, which is more common */}
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className={`h-6 w-6 transform ${isSidebarOpen ? 'rotate-0' : 'rotate-0'} transition-transform duration-300`} 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor" 
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16m-7 6h7" /> 
+            </svg>
+          </button>
+          
+          {/* Title - only visible when sidebar is open */}
+          {isSidebarOpen && (
+            <div className="flex items-center">
+              <span className="text-blue-400 mr-2">⚙️</span> PCAP Data Analyzer
+            </div>
+          )}
         </div>
-        <ul className="space-y-2">
+        
+        {/* Navigation Links */}
+        <ul className="space-y-2 w-full">
           <li>
-            <Link to="/" className="block p-2 hover:bg-blue-600 rounded transition duration-300 hover:translate-x-1">Home</Link>
+            <Link to="/" className="flex items-center p-2 hover:bg-blue-600 rounded transition duration-300 hover:translate-x-1">
+              <span className={`text-xl ${isSidebarOpen ? 'mr-3' : 'mr-0'}`}>🏠</span>
+              {isSidebarOpen && <span>Home</span>}
+            </Link>
           </li>
           <li>
-            <Link to="/analysis" className="block p-2 hover:bg-blue-600 rounded transition duration-300 hover:translate-x-1">Analysis</Link>
+            <Link to="/analysis" className="flex items-center p-2 hover:bg-blue-600 rounded transition duration-300 hover:translate-x-1">
+              <span className={`text-xl ${isSidebarOpen ? 'mr-3' : 'mr-0'}`}>📊</span>
+              {isSidebarOpen && <span>Analysis</span>}
+            </Link>
           </li>
           <li>
-            <Link to="/about" className="block p-2 hover:bg-blue-600 rounded transition duration-300 hover:translate-x-1">About</Link>
+            <Link to="/about" className="flex items-center p-2 hover:bg-blue-600 rounded transition duration-300 hover:translate-x-1">
+              <span className={`text-xl ${isSidebarOpen ? 'mr-3' : 'mr-0'}`}>ℹ️</span>
+              {isSidebarOpen && <span>About</span>}
+            </Link>
           </li>
         </ul>
       </nav>
+      {/* END UPDATED NAVIGATION SIDEBAR */}
+      
       <div className="flex-1 p-6">
         <UploadSection
           file={file}
