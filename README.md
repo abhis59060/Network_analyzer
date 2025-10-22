@@ -51,3 +51,55 @@ Welcome to the **Network Traffic Analyzer**, a web-based application designed to
    - Export results as CSV or JSON files.
 --6. **Manage Data**:
    - Delete data via "Delete Analysis Data" with confirmation.
+
+
+
+Network_Analyzer/
+│
+├── assets/
+│
+├── backend/
+│   ├── __pycache__/
+│   ├── uploads/
+│   │   ├── app.py
+│   │   ├── network_analysis.py
+│   │   └── requirements.txt
+│
+├── Nnetwork/                     # React Frontend
+│   ├── node_modules/
+│   │
+│   ├── public/
+│   │   └── index.html
+│   │
+│   ├── src/
+│   │   ├── assets/
+│   │   │   ├── images/
+│   │   │   └── react.svg
+│   │   │
+│   │   ├── components/
+│   │   │   ├── ui/
+│   │   │   │   ├── button.jsx
+│   │   │   │   ├── card.jsx
+│   │   │   │   ├── input.jsx
+│   │   │   │   └── table.jsx
+│   │   │   ├── Homepage.css
+│   │   │   └── Homepage.jsx
+│   │   │
+│   │   ├── lib/
+│   │   │   └── utils.js
+│   │   │
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   │
+│   ├── .gitignore
+│   ├── components.json
+│   ├── eslint.config.js
+│   ├── jsconfig.json
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── vite.config.js
+│   └── README.md
+│
+└── README.md
