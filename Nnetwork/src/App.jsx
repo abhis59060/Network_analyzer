@@ -1,8 +1,8 @@
-import Homepage from '@/components/Homepage'
-import './App.css'
+import Homepage from './pages/Homepage';  // Updated path
+import './App.css';
 
 function App() {
-  return <Homepage />
+  return <Homepage />;
 }
 
-export default App
+export default App;
