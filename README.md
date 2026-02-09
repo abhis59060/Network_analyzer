@@ -39,58 +39,6 @@ A powerful, low-level packet sniffer and network traffic monitoring tool. This a
 | **Language** | Python 3.x |
 | **Core Library** | Scapy |
 | **Networking** | Raw Sockets (`socket` module) |
-
-
-| **Data Parsing** | `struct` & `binascii` |
-
-## 📁 Project Structure
-
-Bilkul, maine aapke Network Analyzer project ko isi format mein dhala hai. Isme Table of Contents, detailed API/Technical logic, aur professional sections shamil hain taaki yeh aapke Vulnerability Scanner waale README se match kare.
-
-Isko copy karke apne README.md mein daal dijiye:
-
-Markdown
-# 🛡️ Network Analyzer
-
-A powerful, low-level packet sniffer and network traffic monitoring tool. This application is designed for security professionals and students to intercept, decode, and analyze network packets in real-time using Python's raw socket capabilities and the Scapy framework.
-
-## 📋 Table of Contents
-
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [How It Works (Deep Dive)](#how-it-works-deep-dive)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Security Considerations](#security-considerations)
-- [License](#license)
-
-## ✨ Features
-
-- **Real-Time Packet Inspection**
-  - Captures live traffic from any network interface (Ethernet, Wi-Fi).
-  - Promiscuous mode support for total network visibility.
-
-- **Protocol Decoding & Analysis**
-  - **Layer 2:** Ethernet Frame analysis (MAC addresses, EtherType).
-  - **Layer 3:** IPv4/IPv6 Header parsing (IP addresses, TTL, Protocol IDs).
-  - **Layer 4:** Transport layer breakdown for TCP (Flags, Port mapping) and UDP.
-
-- **Deep Packet Inspection (DPI)**
-  - Raw payload extraction and hex-to-text conversion.
-  - Identification of common service protocols (HTTP, DNS, ICMP).
-
-- **Performance & Logging**
-  - Minimalistic and fast execution for high-traffic environments.
-  - Structured console output for easy debugging and auditing.
-
-## 🛠️ Tech Stack
-
-| Component | Technology |
-|-----------|-----------|
-| **Language** | Python 3.x |
-| **Core Library** | Scapy |
-| **Networking** | Raw Sockets (`socket` module) |
 | **Data Parsing** | `struct` & `binascii` |
 
 ## 📁 Project Structure
