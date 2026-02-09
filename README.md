@@ -1,105 +1,71 @@
-# Network Traffic Analyzer
+# 🛡️ Network Analyzer - Packet Sniffer & Traffic Monitor
 
-Welcome to the **Network Traffic Analyzer**, a web-based application designed to analyze network traffic from PCAP (Packet Capture) files. This project allows users to upload `.pcap` or `.pcapng` files, visualize traffic data, and export results for further analysis. Built with React and integrated with a Python/Flask backend, it provides an intuitive interface for network administrators and security professionals.
+Ek robust Python-based tool jo network traffic ko real-time mein capture aur analyze karne ke liye design kiya gaya hai. Yeh tool network security monitoring aur packet-level inspection ke liye ek essential utility hai.
 
-## Table of Contents
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+## 📖 Overview
+Network Analyzer ek utility hai jo network interface se guzarne wale packets ko intercept karti hai. Yeh tool Raw Sockets aur Scapy library ka upyog karke protocols (jaise TCP, UDP, ICMP) ko decode karta hai aur data ko human-readable format mein display karta hai.
 
-## Features
-- **Upload and Analyze**: Upload PCAP files (up to 100MB) and analyze network traffic data.
-- **Interactive Visualizations**: View traffic distributions (e.g., protocol, bandwidth) using customizable bar, line, or pie charts.
-- **Search and Filter**: Search analysis results by IP address, protocol, port, or TCP flags.
-- **Export Options**: Export analysis results as CSV or JSON files, and download graph images for reports.
-- **Theme Toggle**: Switch between dark and light modes for better usability.
-- **Data Management**: Delete analysis data with a confirmation dialog.
-- **Error Handling**: Robust error boundaries to handle application failures gracefully.
+**Layman Example:** Sochiye ki aap ek bade courier hub (router) mein khade hain. Har box (packet) jo waha se guzar raha hai, yeh tool us box ko khol kar dekhta hai ki wo kahan se aa raha hai, kahan ja raha hai, aur uske andar kya saman (payload/data) hai.
 
-## Prerequisites
-- **Node.js**: v18.x or later (for the frontend).
-- **Python**: v3.8 or later (for the backend).
-- **npm**: v9.x or later (included with Node.js).
-- **Git**: For version control and cloning the repository.
+## ✨ Key Features
+- **Real-time Packet Capture:** Bina kisi delay ke live packets ko intercept karna.
+- **Multi-Protocol Support:** Ethernet frames, IP headers, aur Transport layer (TCP/UDP) ka vistaar mein analysis.
+- **Payload Extraction:** Packets ke andar maujood raw data ko analyze karne ki suvidha.
+- **Security Auditing:** Network mein hone wali suspicious activity ko detect karne mein sahayak.
 
-## Installation
+## 📂 Project Structure
+Is project ka architecture modular rakha gaya hai taki code maintainable rahe:
 
-### Clone the Repository
---git clone https://github.com/your-username/Network_analyzer.git
---cd Network_analyzer
-
-
-
-## Usage
---1. **Upload a PCAP File**:
-   - Click "Browse Files" or drag/drop a `.pcap`/`.pcapng` file (max 100MB).
-   - Wait for the upload (simulated progress bar).
---2. **Analyze Traffic**:
-   - Click "Analyze PCAP" to process; see results and visualizations.
---3. **Explore Results**:
-   - View packet details (IP, protocol, ports) in the table.
-   - Search data using the search bar.
---4. **Visualize Data**:
-   - Switch between bar, line, or pie charts; customize colors.
-   - Download graph images for reports.
---5. **Export Data**:
-   - Export results as CSV or JSON files.
---6. **Manage Data**:
-   - Delete data via "Delete Analysis Data" with confirmation.
-
-
-
-Network_Analyzer/
+```text
+Network_analyzer/
 │
-├── assets/
-│
-├── backend/
-│   ├── __pycache__/
-│   ├── uploads/
-│   │   ├── app.py
-│   │   ├── network_analysis.py
-│   │   └── requirements.txt
-│
-├── Nnetwork/                     # React Frontend
-│   ├── node_modules/
-│   │
-│   ├── public/
-│   │   └── index.html
-│   │
-│   ├── src/
-│   │   ├── assets/
-│   │   │   ├── images/
-│   │   │   └── react.svg
-│   │   │
-│   │   ├── components/
-│   │   │   ├── ui/
-│   │   │   │   ├── button.jsx
-│   │   │   │   ├── card.jsx
-│   │   │   │   ├── input.jsx
-│   │   │   │   └── table.jsx
-│   │   │   ├── Homepage.css
-│   │   │   └── Homepage.jsx
-│   │   │
-│   │   ├── lib/
-│   │   │   └── utils.js
-│   │   │
-│   │   ├── App.css
-│   │   ├── App.jsx
-│   │   ├── index.css
-│   │   └── main.jsx
-│   │
-│   ├── .gitignore
-│   ├── components.json
-│   ├── eslint.config.js
-│   ├── jsconfig.json
-│   ├── package.json
-│   ├── package-lock.json
-│   ├── vite.config.js
-│   └── README.md
-│
-└── README.md
+├── main.py              # Main execution file jo sniffer ko start karti hai.
+├── decoder.py           # Packets aur protocols ko parse karne ka core logic.
+├── utils.py             # Helper functions aur text formatting utilities.
+├── requirements.txt     # Dependencies ki list (Scapy, etc.).
+└── README.md            # Project documentation.
+🛠️ Technical Stack
+Language: Python 3.x
+
+Libraries: scapy, socket, struct
+
+Focus: Network Security & Protocol Analysis
+
+🔍 Deep Dive: How it Works?
+Raw Socket Creation: Tool OS kernel se sidha network interface ka access maangta hai taaki har bit ko read kiya ja sake.
+
+Ethernet Frame Decoding: Sabse pehle Layer 2 (Data Link Layer) ki information nikali jati hai jaise MAC addresses.
+
+IP Header Parsing: Iske baad Layer 3 (Network Layer) se Source aur Destination IP ko extract kiya jata hai.
+
+Transport Layer Breakdown: Protocol ID ke basis par yeh decide hota hai ki packet TCP hai ya UDP, aur phir ports aur flags ki jaanch hoti hai.
+
+🚀 Getting Started
+Prerequisites
+Is tool ko chalane ke liye aapke system mein Python installed hona chahiye aur scapy library ki zarurat hogi:
+
+Bash
+pip install scapy
+Installation
+Repository ko clone karein:
+
+Bash
+git clone [https://github.com/abhis59060/Network_analyzer.git](https://github.com/abhis59060/Network_analyzer.git)
+Project directory mein jayein:
+
+Bash
+cd Network_analyzer
+Usage
+Tool ko administrator ya root privileges ke saath run karein (kyunki raw sockets access ke liye permissions chahiye hoti hain):
+
+Bash
+# For Linux
+sudo python3 main.py
+
+# For Windows
+python main.py (Run as Administrator)
+⚠️ Disclaimer
+Yeh tool sirf Educational Purposes aur Ethical Hacking ke liye banaya gaya hai. Bina permission ke kisi dusre ke network ko monitor karna illegal hai.
+
+👤 Author
+Abhishek Tiwary MCA Cyber Security Student
