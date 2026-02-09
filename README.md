@@ -24,6 +24,9 @@ Network_analyzer/
 ├── utils.py             # Helper functions aur text formatting utilities.
 ├── requirements.txt     # Dependencies ki list (Scapy, etc.).
 └── README.md            # Project documentation.
+
+
+
 🛠️ Technical Stack
 Language: Python 3.x
 
